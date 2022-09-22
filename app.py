@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 
 import tweepy
+
 # Import the wordcloud library
 import wordcloud
 
@@ -83,13 +84,14 @@ if st.button("Search") or (prev_qry != query):
     tweet_df.columns = columns
     tweet_df.head()
 
-    tweet_df.to_csv("tweets.csv", index=False)
+    # tweet_df.to_csv("tweets.csv", index=False)
+
+    df = tweet_df
 
     df = pd.read_csv("tweets.csv")
 
     df = df.drop_duplicates(subset="Tweet_Text")
     # st.write(df.describe())
-
 
     # Some basic helper functions to clean text by removing urls, html tags, punctuations and Stop Words.
 
