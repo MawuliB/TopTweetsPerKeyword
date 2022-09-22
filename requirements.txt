@@ -1,4 +1,5 @@
-sklearn.feature_extraction.text
+streamlit
+sklearn
 nltk
 matplotlib
 wordcloud
