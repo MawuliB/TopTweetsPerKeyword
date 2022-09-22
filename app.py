@@ -254,4 +254,4 @@ if st.button("Search") or (prev_qry != query):
 
     for li in result:
         text = getJson(li)
-        comp.html(text)
+        comp.html(text, height=700)
