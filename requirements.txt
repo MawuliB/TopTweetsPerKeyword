@@ -1,0 +1,10 @@
+sklearn.feature_extraction.text
+nltk
+matplotlib
+wordcloud
+re
+nltk
+string
+emoji
+pandas
+tweepy
