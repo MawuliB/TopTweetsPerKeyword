@@ -69,7 +69,7 @@ if st.button("Search") or (prev_qry != query):
     df = df.drop_duplicates(subset="Tweet_Text")
     # st.write(df.describe())
 
-    import re
+    import regex as re
     import nltk
     import string
     from emoji import demojize

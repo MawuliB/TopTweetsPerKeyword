@@ -4,7 +4,7 @@ sklearn
 nltk
 matplotlib
 wordcloud
-re
+regex
 nltk
 string
 emoji
