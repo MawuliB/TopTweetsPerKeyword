@@ -1,4 +1,4 @@
---upgrade pip
+streamlit==1.12.2
 streamlit
 sklearn
 nltk
