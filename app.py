@@ -105,8 +105,8 @@ if st.button("Search") or (prev_qry != query):
         data = data.replace(r"n't", " not")
 
         # remove_punct
-        table = str.maketrans("", "", string.punctuation)
-        data = data.translate(table)
+        # table = str.maketrans("", "", string.punctuation)
+        # data = data.translate(table)
 
         # remove_special
         data = demojize(data)
@@ -180,10 +180,10 @@ if st.button("Search") or (prev_qry != query):
     from nltk import word_tokenize
     from nltk.stem import WordNetLemmatizer
 
-    nltk.download('stopwords')
-    nltk.download('punkt')
-    nltk.download('wordnet')
-    nltk.download('omw-1.4')
+    nltk.download("stopwords")
+    nltk.download("punkt")
+    nltk.download("wordnet")
+    nltk.download("omw-1.4")
 
     stopwords = nltk.corpus.stopwords.words("english")
     extra = [

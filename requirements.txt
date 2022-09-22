@@ -6,7 +6,6 @@ matplotlib
 wordcloud
 regex
 nltk
-string
 emoji
 pandas
 tweepy
