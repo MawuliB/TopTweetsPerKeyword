@@ -444,6 +444,14 @@ if selected == "Contact":
 
     st.write("Email: \nmawulibadassou5@gmail.com")
     st.write("Phone: \n+233244065972")
-    st.write("Github: \ngithub.com/MawuliB")
-    st.write("linkedIn: \nlinkedin.com/in/mawuli-badassou-8a3021225/")
-    st.write("Youtube: \nyoutube.com/Mawuli")
+    st.markdown(
+        "Github: \n[github.com/MawuliB](github.com/MawuliB)", unsafe_allow_html=True
+    )
+    st.markdown(
+        "linkedIn: \n[linkedin.com/in/mawuli-badassou-8a3021225/](linkedin.com/in/mawuli-badassou-8a3021225/)",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "Youtube: \n[youtube.com/Mawuli](youtube.com/Mawuli)", unsafe_allow_html=True
+    )
+
