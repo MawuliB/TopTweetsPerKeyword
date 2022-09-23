@@ -1,5 +1,5 @@
 streamlit==1.12.2
-streamlit
+streamlit-option-menu
 sklearn
 nltk
 matplotlib
@@ -9,3 +9,4 @@ nltk
 emoji
 pandas
 tweepy
+geocoder
