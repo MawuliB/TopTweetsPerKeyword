@@ -455,3 +455,4 @@ if selected == "Contact":
         "Youtube: \n[youtube.com/Mawuli](youtube.com/Mawuli)", unsafe_allow_html=True
     )
 
+    st.write("Copy Link If Clicking Doesn't Work")
