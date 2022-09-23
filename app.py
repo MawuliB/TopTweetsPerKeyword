@@ -67,7 +67,7 @@ if selected == "Search Trends":
         return trends[0]["trends"][0:20]
 
     st.title("Get Top Latest Trends per Country")
-    st.write("Know what is going")
+    st.write("Know what is going!")
 
     p_qry = ""
 
@@ -83,216 +83,361 @@ if selected == "Search Trends":
 
 
 if selected == "Search Tweets":
-    st.title("Get Top Latest Tweets About A Hashtag Or Keyword")
-    st.write("Know what is going")
 
-    prev_qry = ""
+    selected = option(
+        menu_title=None, options=["Tweets", "Statistics"], orientation="horizontal",
+    )
+    if selected == "Tweets":
+        st.title("Get Top Latest Tweets About A Hashtag Or Keyword")
+        st.write("Know what is going")
 
-    query = st.text_input("Enter the Keyword or Hashtag")
+        prev_qry = ""
 
-    if st.button("Search") or (prev_qry != query):
-        prev_qry = query
+        query = st.text_input("Enter the Keyword or Hashtag")
 
-        keyword = query
-        limit = 10000
-        trends = []
+        pnum = ""
 
-        tweets = tweepy.Cursor(
-            api.search_tweets, q=keyword, count=100, tweet_mode="extended", lang="en"
-        ).items(limit)
+        num = st.text_input("Enter Number of tweets.")
+        st.write("The more tweets the longer it takes. 1000 is recommended")
 
-        trends.extend(tweets)
+        if (st.button("Search") or (prev_qry != query)) and (pnum != num):
+            prev_qry = query
+            pnum = num
 
-        print("Tweet Fetched")
+            keyword = query
+            limit = int(num)
+            trends = []
 
-        lists = []
+            tweets = tweepy.Cursor(
+                api.search_tweets,
+                q=keyword,
+                count=100,
+                tweet_mode="extended",
+                lang="en",
+            ).items(limit)
 
-        for t in trends:
-            lists.append([t.full_text, f"https://twitter.com/user/status/{t.id}"])
+            trends.extend(tweets)
 
-        df = pd.DataFrame(lists)
+            print("Tweet Fetched")
 
-        columns = ["Tweet_Text", "Link"]
-        df.columns = columns
+            lists = []
 
-        columns = ["Tweet_Text", "Link"]
-        df.columns = columns
-        df.head()
+            for t in trends:
+                lists.append([t.full_text, f"https://twitter.com/user/status/{t.id}"])
 
-        # df.to_csv("tweets.csv", index=False)
+            df = pd.DataFrame(lists)
 
-        # df = pd.read_csv("tweets.csv")
+            columns = ["Tweet_Text", "Link"]
+            df.columns = columns
 
-        df = df.drop_duplicates(subset="Tweet_Text")
-        # st.write(df.describe())
+            # df.to_csv("tweets.csv", index=False)
 
-        # Some basic helper functions to clean text by removing urls, html tags, punctuations and Stop Words.
+            # df = pd.read_csv("tweets.csv")
 
-        def helper(data):
+            df = df.drop_duplicates(subset="Tweet_Text")
+            # st.write(df.describe())
 
-            # lower_text
-            # print(data)
-            data = str(data).lower()
+            # Some basic helper functions to clean text by removing urls, html tags, punctuations and Stop Words.
 
-            def tr(n):
-                if n[0:2] == "rt":
-                    n = n[3:]
-                return n
+            def helper(data):
 
-            data = tr(data)
-            data = " ".join(
-                re.sub(
-                    "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", data
-                ).split()
+                # lower_text
+                # print(data)
+                data = str(data).lower()
+
+                def tr(n):
+                    if n[0:2] == "rt":
+                        n = n[3:]
+                    return n
+
+                data = tr(data)
+                data = " ".join(
+                    re.sub(
+                        "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", data
+                    ).split()
+                )
+
+                # remove_URL
+                url = re.compile(r"https?://\S+|www\.\S+")
+                data = url.sub(r"", data)
+
+                # remove_html
+                html = re.compile(r"<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+                data = re.sub(html, "", data)
+
+                # transform_short_negation_form
+                data = data.replace(r"(can't|cannot)", "can not")
+                data = data.replace(r"n't", " not")
+
+                # remove_punct
+                # table = str.maketrans("", "", string.punctuation)
+                # data = data.translate(table)
+
+                # remove_special
+                data = demojize(data)
+                data = data.replace(r"::", ": :")
+                data = data.replace(r"’", "'")
+                data = data.replace(r"[^a-z\':_]", " ")
+
+                # remove_repetitions
+                pattern = re.compile(r"(.)\1{2,}", re.DOTALL)
+                return data.replace(str(pattern), r"\1")
+
+            df["processed"] = df["Tweet_Text"].apply(lambda x: helper(x))
+
+            df.head()
+
+            # Load the library with the CountVectorizer method
+
+            # Helper function
+            def plot_10_most_common_words(count_data, count_vectorizer):
+
+                words = count_vectorizer.get_feature_names()
+                total_counts = np.zeros(len(words))
+                for t in count_data:
+                    total_counts += t.toarray()[0]
+
+                count_dict = zip(words, total_counts)
+                count_dict = sorted(count_dict, key=lambda x: x[1], reverse=True)[0:10]
+                words = [w[0] for w in count_dict]
+
+                return words
+
+            # Initialise the count vectorizer with the English stop words
+            count_vectorizer = CountVectorizer(stop_words="english")
+
+            # Fit and transform the processed titles
+            count_data = count_vectorizer.fit_transform(df["processed"])
+
+            # Visualise the 10 most common words
+            top_words = plot_10_most_common_words(count_data, count_vectorizer)
+
+            text_l = " ".join(top_words)
+
+            stopwords = nltk.corpus.stopwords.words("english")
+            extra = [
+                "!",
+                "(",
+                ")",
+                "-",
+                "[",
+                "]",
+                "{",
+                "}",
+                ";",
+                ":",
+                '"',
+                ",",
+                "<",
+                ">",
+                "/",
+                "?",
+                "@",
+                "#",
+                "$",
+                "%",
+                "^",
+                "&",
+                "*",
+                "_",
+                "~",
+                "'",
+            ]
+
+            lemmatizer = WordNetLemmatizer()
+
+            def stopword_tokenize(sentence):
+                # tokenize
+                word_list = word_tokenize(sentence)
+                # remove stop words
+                stop_list = [
+                    word
+                    for word in word_list
+                    if word not in stopwords and word not in extra and word.isalpha()
+                ]
+                # lemmatize result
+                final_list = [lemmatizer.lemmatize(word) for word in stop_list]
+                return final_list
+
+            vectorizer = TfidfVectorizer(tokenizer=stopword_tokenize)
+
+            def cosine_sim(text1, query):
+                tfidf = vectorizer.fit_transform([text1, query])
+                return round(((tfidf * tfidf.T).A)[0, 1], 2)
+
+            df["Cosine_sim"] = df["processed"].apply(lambda x: cosine_sim(x, text_l))
+            result = (
+                df.sort_values(by="Cosine_sim", ascending=False)
+                .drop_duplicates()
+                .head(20)["Link"]
+                .values.tolist()
             )
 
-            # remove_URL
-            url = re.compile(r"https?://\S+|www\.\S+")
-            data = url.sub(r"", data)
+            def getJson(url):
+                link = "https://publish.twitter.com/oembed?url={}".format(url)
+                response = requests.get(link)
+                json = response.json()["html"]
+                return json
 
-            # remove_html
-            html = re.compile(r"<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
-            data = re.sub(html, "", data)
+            print("Printing Tweets")
 
-            # transform_short_negation_form
-            data = data.replace(r"(can't|cannot)", "can not")
-            data = data.replace(r"n't", " not")
+            for li in result:
+                text = getJson(li)
+                comp.html(text, height=700)
 
-            # remove_punct
-            # table = str.maketrans("", "", string.punctuation)
-            # data = data.translate(table)
+    if selected == "Statistics":
+        st.title("Get Statistics About A Hashtag Or Keyword")
+        st.write("Know what is going")
 
-            # remove_special
-            data = demojize(data)
-            data = data.replace(r"::", ": :")
-            data = data.replace(r"’", "'")
-            data = data.replace(r"[^a-z\':_]", " ")
+        prev_qry = ""
 
-            # remove_repetitions
-            pattern = re.compile(r"(.)\1{2,}", re.DOTALL)
-            return data.replace(str(pattern), r"\1")
+        query = st.text_input("Enter the Keyword or Hashtag")
 
-        df["processed"] = df["Tweet_Text"].apply(lambda x: helper(x))
+        pnum = ""
 
-        df.head()
+        num = st.text_input("Enter Number of tweets.")
+        st.write("The more tweets the longer it takes. 1000 is recommended")
 
-        # Join the different processed titles together.
-        long_string = " ".join(df["processed"])
+        if (st.button("Search") or (prev_qry != query)) and (pnum != num):
+            prev_qry = query
+            pnum = num
 
-        # Create a WordCloud object
-        wordcloud = wordcloud.WordCloud()
+            keyword = query
+            limit = int(num)
+            trends = []
 
-        # Generate a word cloud
-        wordcloud.generate(long_string)
+            tweets = tweepy.Cursor(
+                api.search_tweets,
+                q=keyword,
+                count=100,
+                tweet_mode="extended",
+                lang="en",
+            ).items(limit)
 
-        # Visualize the word cloud
-        st.write(wordcloud.to_image())
+            trends.extend(tweets)
 
-        # Load the library with the CountVectorizer method
+            print("Tweet Fetched")
 
-        # Helper function
-        def plot_10_most_common_words(count_data, count_vectorizer):
+            lists = []
 
-            words = count_vectorizer.get_feature_names()
-            total_counts = np.zeros(len(words))
-            for t in count_data:
-                total_counts += t.toarray()[0]
+            for t in trends:
+                lists.append([t.full_text, f"https://twitter.com/user/status/{t.id}"])
 
-            count_dict = zip(words, total_counts)
-            count_dict = sorted(count_dict, key=lambda x: x[1], reverse=True)[0:10]
-            words = [w[0] for w in count_dict]
-            counts = [w[1] for w in count_dict]
-            x_pos = np.arange(len(words))
+            df = pd.DataFrame(lists)
 
-            plt.bar(x_pos, counts, align="center")
-            plt.xticks(x_pos, words, rotation=90)
-            plt.xlabel("words")
-            plt.ylabel("counts")
-            plt.title("10 most common words")
-            st.write(plt.show())
-            return words
+            columns = ["Tweet_Text", "Link"]
+            df.columns = columns
 
-        # Initialise the count vectorizer with the English stop words
-        count_vectorizer = CountVectorizer(stop_words="english")
+            # df.to_csv("tweets.csv", index=False)
 
-        # Fit and transform the processed titles
-        count_data = count_vectorizer.fit_transform(df["processed"])
+            # df = pd.read_csv("tweets.csv")
 
-        # Visualise the 10 most common words
-        top_words = plot_10_most_common_words(count_data, count_vectorizer)
+            df = df.drop_duplicates(subset="Tweet_Text")
+            st.write("Tweet Description After Duplicates Removed")
+            st.dataframe(pd.DataFrame(df.astype(str).describe().T))
+            st.write("Tweets Dataframe")
+            st.dataframe(df)
 
-        text_l = " ".join(top_words)
+            # Some basic helper functions to clean text by removing urls, html tags, punctuations and Stop Words.
 
-        stopwords = nltk.corpus.stopwords.words("english")
-        extra = [
-            "!",
-            "(",
-            ")",
-            "-",
-            "[",
-            "]",
-            "{",
-            "}",
-            ";",
-            ":",
-            '"',
-            ",",
-            "<",
-            ">",
-            "/",
-            "?",
-            "@",
-            "#",
-            "$",
-            "%",
-            "^",
-            "&",
-            "*",
-            "_",
-            "~",
-            "'",
-        ]
+            def helper(data):
 
-        lemmatizer = WordNetLemmatizer()
+                # lower_text
+                # print(data)
+                data = str(data).lower()
 
-        def stopword_tokenize(sentence):
-            # tokenize
-            word_list = word_tokenize(sentence)
-            # remove stop words
-            stop_list = [
-                word
-                for word in word_list
-                if word not in stopwords and word not in extra and word.isalpha()
-            ]
-            # lemmatize result
-            final_list = [lemmatizer.lemmatize(word) for word in stop_list]
-            return final_list
+                def tr(n):
+                    if n[0:2] == "rt":
+                        n = n[3:]
+                    return n
 
-        vectorizer = TfidfVectorizer(tokenizer=stopword_tokenize)
+                data = tr(data)
+                data = " ".join(
+                    re.sub(
+                        "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", data
+                    ).split()
+                )
 
-        def cosine_sim(text1, query):
-            tfidf = vectorizer.fit_transform([text1, query])
-            return round(((tfidf * tfidf.T).A)[0, 1], 2)
+                # remove_URL
+                url = re.compile(r"https?://\S+|www\.\S+")
+                data = url.sub(r"", data)
 
-        df["Cosine_sim"] = df["processed"].apply(lambda x: cosine_sim(x, text_l))
-        result = (
-            df.sort_values(by="Cosine_sim", ascending=False)
-            .drop_duplicates()
-            .head(10)["Link"]
-            .values.tolist()
-        )
+                # remove_html
+                html = re.compile(r"<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+                data = re.sub(html, "", data)
 
-        def getJson(url):
-            link = "https://publish.twitter.com/oembed?url={}".format(url)
-            response = requests.get(link)
-            json = response.json()["html"]
-            return json
+                # transform_short_negation_form
+                data = data.replace(r"(can't|cannot)", "can not")
+                data = data.replace(r"n't", " not")
 
-        print("Printing Tweets")
+                # remove_punct
+                # table = str.maketrans("", "", string.punctuation)
+                # data = data.translate(table)
 
-        for li in result:
-            text = getJson(li)
-            comp.html(text, height=700)
+                # remove_special
+                data = demojize(data)
+                data = data.replace(r"::", ": :")
+                data = data.replace(r"’", "'")
+                data = data.replace(r"[^a-z\':_]", " ")
+
+                # remove_repetitions
+                pattern = re.compile(r"(.)\1{2,}", re.DOTALL)
+                return data.replace(str(pattern), r"\1")
+
+            df["processed"] = df["Tweet_Text"].apply(lambda x: helper(x))
+
+            df.head()
+
+            # Join the different processed titles together.
+            long_string = " ".join(df["processed"])
+
+            # Create a WordCloud object
+            wordcloud = wordcloud.WordCloud()
+
+            # Generate a word cloud
+            wordcloud.generate(long_string)
+
+            # Visualize the word cloud
+            fig, ax = plt.subplots(figsize=(12, 8))
+            ax.imshow(wordcloud)
+            plt.axis("off")
+            st.write("Most Words")
+            st.pyplot(fig)
+            # st.image(wordcloud.to_image())
+
+            # Load the library with the CountVectorizer method
+
+            # Helper function
+            # def plot_10_most_common_words(count_data, count_vectorizer):
+
+            #     words = count_vectorizer.get_feature_names_out()
+            #     total_counts = np.zeros(len(words))
+            #     for t in count_data:
+            #         total_counts += t.toarray()[0]
+
+            #     count_dict = zip(words, total_counts)
+            #     count_dict = sorted(count_dict, key=lambda x: x[1], reverse=True)[0:10]
+            #     words = [w[0] for w in count_dict]
+            #     counts = [w[1] for w in count_dict]
+            #     x_pos = np.arange(len(words))
+
+            #     plt.bar(x_pos, counts, align="center")
+            #     plt.xticks(x_pos, words, rotation=90)
+            #     plt.xlabel("words")
+            #     plt.ylabel("counts")
+            #     plt.title("10 most common words")
+
+            #     return words
+
+            # # Initialise the count vectorizer with the English stop words
+            # count_vectorizer = CountVectorizer(stop_words="english")
+
+            # # Fit and transform the processed titles
+            # count_data = count_vectorizer.fit_transform(df["processed"])
+
+            # # Visualise the 10 most common words
+            # top_words = plot_10_most_common_words(count_data, count_vectorizer)
+
 
 if selected == "Contact":
     st.title("Here is My Contact Details")
