@@ -444,6 +444,6 @@ if selected == "Contact":
 
     st.write("Email: \nmawulibadassou5@gmail.com")
     st.write("Phone: \n+233244065972")
-    st.write("Github: \nMawuliB")
-
-    st.write("Youtube: \nMawuli")
+    st.write("Github: \ngithub.com/MawuliB")
+    st.write("linkedIn: \nlinkedin.com/in/mawuli-badassou-8a3021225/")
+    st.write("Youtube: \nyoutube.com/Mawuli")
