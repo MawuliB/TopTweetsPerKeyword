@@ -50,12 +50,11 @@ except Exception:
     print("Error during authentication")
 
 
-with st.sidebar:
-    selected = option(
-        menu_title=None,
-        options=["Search Trends", "Search Tweets", "Contact"],
-        orientation="horizontal",
-    )
+selected = option(
+    menu_title=None,
+    options=["Search Trends", "Search Tweets", "Contact"],
+    orientation="horizontal",
+)
 
 if selected == "Search Trends":
 
@@ -124,7 +123,7 @@ if selected == "Search Tweets":
 
         df = tweet_df
 
-        df = pd.read_csv("tweets.csv")
+        # df = pd.read_csv("tweets.csv")
 
         df = df.drop_duplicates(subset="Tweet_Text")
         # st.write(df.describe())
@@ -300,8 +299,8 @@ if selected == "Search Tweets":
 if selected == "Contact":
     st.title("Here is My Contact Details")
 
-    st.write("Email\nmawulibadassou5@gmail.com")
-    st.write("Phone\n+233244065972")
-    st.write("Github\nMawuliB")
+    st.write("Email: \nmawulibadassou5@gmail.com")
+    st.write("Phone: \n+233244065972")
+    st.write("Github: \nMawuliB")
 
-    st.write("Youtube\nMawuli")
+    st.write("Youtube: \nMawuli")
