@@ -64,7 +64,7 @@ if selected == "Search Trends":
 
         closest_loc = api.closest_trends(g.lat, g.lng)
         trends = api.get_place_trends(closest_loc[0]["woeid"])
-        return trends[0]["trends"][0:10]
+        return trends[0]["trends"][0:20]
 
     st.title("Get Top Latest Trends per Country")
     st.write("Know what is going")
@@ -110,18 +110,16 @@ if selected == "Search Tweets":
         for t in trends:
             lists.append([t.full_text, f"https://twitter.com/user/status/{t.id}"])
 
-        tweet_df = pd.DataFrame(lists)
+        df = pd.DataFrame(lists)
 
         columns = ["Tweet_Text", "Link"]
-        tweet_df.columns = columns
+        df.columns = columns
 
         columns = ["Tweet_Text", "Link"]
-        tweet_df.columns = columns
-        tweet_df.head()
+        df.columns = columns
+        df.head()
 
-        # tweet_df.to_csv("tweets.csv", index=False)
-
-        df = tweet_df
+        # df.to_csv("tweets.csv", index=False)
 
         # df = pd.read_csv("tweets.csv")
 
