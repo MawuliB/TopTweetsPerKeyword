@@ -444,15 +444,9 @@ if selected == "Contact":
 
     st.write("Email: \nmawulibadassou5@gmail.com")
     st.write("Phone: \n+233244065972")
-    st.markdown(
-        "Github: \n[github.com/MawuliB](github.com/MawuliB)", unsafe_allow_html=True
+    st.markdown('<p> Github <a href="https://github.com/MawuliB" style="text-decoration: none;"> Go to My Github </a> </p>', unsafe_allow_html=True
     )
-    st.markdown(
-        "linkedIn: \n[linkedin.com/in/mawuli-badassou-8a3021225/](linkedin.com/in/mawuli-badassou-8a3021225/)",
-        unsafe_allow_html=True,
+    st.markdown('<p> LinkedIn <a href="https://linkedin.com/in/mawuli-badassou-8a3021225/" style="text-decoration: none;"> Go to My linkedIn </a> </p>',unsafe_allow_html=True
     )
-    st.markdown(
-        "Youtube: \n[youtube.com/Mawuli](youtube.com/Mawuli)", unsafe_allow_html=True
+    st.markdown('<p> Youtube <a href="https://youtube.com/Mawuli" style="text-decoration: none;"> Go to My Youtube </a> </p>', unsafe_allow_html=True
     )
-
-    st.write("Copy Link If Clicking Doesn't Work")
