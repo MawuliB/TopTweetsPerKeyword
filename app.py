@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as comp
-import streamlit_option_menu as option
+from streamlit_option_menu import option_menu as option
 import requests
 import pandas as pd
 
@@ -299,7 +299,7 @@ if selected == "Search Tweets":
 
 if selected == "Contact":
     st.title("Here is My Contact Details")
-    
+
     st.write("Email\nmawulibadassou5@gmail.com")
     st.write("Phone\n+233244065972")
     st.write("Github\nMawuliB")
