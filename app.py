@@ -3,6 +3,7 @@ import streamlit.components.v1 as comp
 from streamlit_option_menu import option_menu as option
 import requests
 import pandas as pd
+import seaborn as sns
 
 import tweepy
 
@@ -328,15 +329,30 @@ if selected == "Search Tweets":
             columns = ["Tweet_Text", "Link"]
             df.columns = columns
 
-            # df.to_csv("tweets.csv", index=False)
+            @st.cache
+            def convert_df_to_csv(df):
+                # IMPORTANT: Cache the conversion to prevent computation on every rerun
+                return df.to_csv().encode("utf-8")
 
-            # df = pd.read_csv("tweets.csv")
+            st.download_button(
+                label="Download Full data as CSV",
+                data=convert_df_to_csv(df),
+                file_name="df.csv",
+                mime="text/csv",
+            )
 
             df = df.drop_duplicates(subset="Tweet_Text")
+            df = df.reset_index(drop=True)
             st.write("Tweet Description After Duplicates Removed")
             st.dataframe(pd.DataFrame(df.astype(str).describe().T))
             st.write("Tweets Dataframe")
             st.dataframe(df)
+            st.download_button(
+                label="Download CSV",
+                data=convert_df_to_csv(df),
+                file_name="df_dup_removed.csv",
+                mime="text/csv",
+            )
 
             # Some basic helper functions to clean text by removing urls, html tags, punctuations and Stop Words.
 
@@ -404,6 +420,38 @@ if selected == "Search Tweets":
             st.write("Most Words")
             st.pyplot(fig)
             # st.image(wordcloud.to_image())
+
+            # import the library
+            from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+            # calculate the negative, positive, neutral and compound scores, plus verbal evaluation
+            def sentiment_vader(sentence):
+
+                # Create a SentimentIntensityAnalyzer object.
+                sid_obj = SentimentIntensityAnalyzer()
+
+                sentiment_dict = sid_obj.polarity_scores(sentence)
+
+                if sentiment_dict["compound"] >= 0.05:
+                    overall_sentiment = "Positive"
+
+                elif sentiment_dict["compound"] <= -0.05:
+                    overall_sentiment = "Negative"
+
+                else:
+                    overall_sentiment = "Neutral"
+
+                return overall_sentiment
+
+            st.write("Sentiment Analysis")
+
+            df["sentiment"] = df["processed"].apply(lambda x: sentiment_vader(x))
+
+            df = df.reset_index(drop=True)
+
+            fig = plt.figure(figsize=(10, 5))
+            sns.countplot(x="sentiment", data=df)
+            st.pyplot(fig)
 
             # Load the library with the CountVectorizer method
 
