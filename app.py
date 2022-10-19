@@ -32,11 +32,11 @@ nltk.download("wordnet")
 nltk.download("omw-1.4")
 
 # Display search results for user_query
-api_key = "yZ6E6wCJh5BpYD6hLSy07aesi"
-api_key_secret = "s98RUSMsrwWNdzkhxMp2a1Jhawy2CYxLgHrFAEl8Itc3JbaGbN"
+api_key = st.secrets["api_key"]
+api_key_secret = st.secrets["api_key_secret"]
 
-access_token = "1082021464986054657-BxSzIQDe1YPef2WPIsU5bijWbs5NBW"
-access_token_secret = "KfvBonYBQOArHZJkQ0vmcfmDIGne1QJf3LuRLucBY9uVe"
+access_token = st.secrets["access_token"]
+access_token_secret = st.secrets["access_token_secret"]
 
 # authentication
 auth = tweepy.OAuthHandler(api_key, api_key_secret)
