@@ -1,6 +1,6 @@
 streamlit==1.12.2
 streamlit-option-menu
--U scikit-learn
+scikit-learn
 sklearn
 nltk
 matplotlib
