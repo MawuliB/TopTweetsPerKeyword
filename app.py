@@ -119,7 +119,7 @@ if selected == "Search Tweets":
 
             trends.extend(tweets)
 
-            print("Tweet Fetched")
+            # print("Tweet Fetched")
 
             lists = []
 
