@@ -193,7 +193,7 @@ if selected == "Search Tweets":
             # Helper function
             def plot_10_most_common_words(count_data, count_vectorizer):
 
-                words = count_vectorizer.get_feature_names()
+                words = count_vectorizer.get_feature_names_out()
                 total_counts = np.zeros(len(words))
                 for t in count_data:
                     total_counts += t.toarray()[0]
